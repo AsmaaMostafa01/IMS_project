@@ -1,10 +1,16 @@
 {
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
     "@typegoose/typegoose": "^12.6.0",
     "@types/mongoose": "^5.11.97",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "antd": "^5.20.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "ts-node-dev": "^2.0.0",
     "uuid": "^10.0.0"
   },
@@ -21,7 +27,8 @@
   "description": "<<<<<<< HEAD # React-Nodejs-Setup",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "react-scripts start"
   },
   "keywords": [],
   "author": "",
