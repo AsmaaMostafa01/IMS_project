@@ -19,7 +19,7 @@ router.post('/create-first-admin', (req, res, next) => {
  // No authentication required for this route
 //admin and teamleaders can add trainees
 router.route('/')
-  .post(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), uploadImages('profiles').single('picture'), isUserValidForCreate, user.create)
+  .post(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN,UserTypeEnum.TEAMLEADER]), uploadImages('profiles').single('picture'), isUserValidForCreate, user.create)
   .get(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN]), user.getAll);
   
 // router.route('/filter')
@@ -38,7 +38,7 @@ router.route('/login')
 router.route('/:id')
   .all(isAuth)
   .put(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), user.update)
-  .delete(isAuth, hasValidRole([UserTypeEnum.ADMIN]), user.delete)
+  .delete(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), user.delete)
   .get(user.getById)
 
 

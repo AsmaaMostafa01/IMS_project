@@ -7,13 +7,16 @@ const { SECRETE, EXPIRE } = Env;
 
 const signUser = (user: any) => {
   // const token = jwt.sign({ user }, SECRETE, { algorithm: 'HS256', expiresIn: EXPIRE });
-  const token = jwt.sign({ user }, SECRETE, { algorithm: 'HS256' });
+  
+  const token = jwt.sign({  user  }, SECRETE, { algorithm: 'HS256' });
   return token;
 };
 
 const verifyToken = (authToken: string) => {
   try {
     const decoded = jwt.verify(authToken, SECRETE);
+    console.log('Decoded Token:', decoded); // Log the decoded token
+
     return decoded;
   } catch (error) {
     throw new HttpError('Invalid token', HttpStatus.UNAUTHORIZED);

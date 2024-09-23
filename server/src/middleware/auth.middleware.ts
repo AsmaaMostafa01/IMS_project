@@ -31,46 +31,25 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
 
     // Checks if the token is valid and sets the user property of the request
     const isTokenValid = user && authType === 'bearer';
+    console.log(Object(Object(user).user).id);
     if (isTokenValid) {
       if (Object(Object(user).user).id) {
         const userDataAccess = new UserData();
         const userService = new UserService(userDataAccess);
-        const payload = await userService.getByPayload(Object(Object(user).user).id);
-        req.user = {
-          user: {
-            ...payload, type: String(payload.type), id: String(payload.id), orgId: String(payload.orgId), clientId: String(payload.clientId),
-          },
-        };
-      } else {
-        req.user = { user: { type: UserTypeEnum.SADMIN, id: Env.SUPER_ADMIN_ID } };
-      }
-      // req.user = user;
-      next();
-    } else {
-      
-      throw new HttpError('Unauthorized user !!, Please Try to login first !!', HttpStatus.UNAUTHORIZED);
-    }
-  } catch {
-    next(new HttpError('Unauthorized user !!, Please Try to login first !!', HttpStatus.UNAUTHORIZED));
-  }
-};
-
-export const isAuthForStaticAsset = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { token } = req.query
-    
-    // Verifies the token using a custom function
-    const user = verifyToken(token as string);
-    if (user) {
-      if (Object(Object(user).user).id) {
-        const userDataAccess = new UserData();
-        const userService = new UserService(userDataAccess);
-        const payload = await userService.getByPayload(Object(Object(user).user).id);
-        req.user = {
-          user: {
-            ...payload, type: String(payload.type), id: String(payload.id), orgId: String(payload.orgId), clientId: String(payload.clientId),
-          },
-        };
+        const userdata = await userService.getById(Object(Object(user).user).id) ;
+        req.user= {
+          user:{
+            ...userdata,type:userdata.type,id:userdata.id
+          }
+        }
+        console.log('userData',req.user);
+        //const payload = await userService.getByPayload(Object(Object(user).user).id);
+        // req.user = {
+        //   user: {
+        //     ...payload, type: String(payload.type), id: String(payload.id), 
+        //   },
+        // };
+        // console.log('user:',req.user);
       } else {
         req.user = { user: { type: UserTypeEnum.SADMIN, id: Env.SUPER_ADMIN_ID } };
       }
@@ -80,7 +59,7 @@ export const isAuthForStaticAsset = async (req: Request, res: Response, next: Ne
       throw new HttpError('Unauthorized user !!, Please Try to login first !!', HttpStatus.UNAUTHORIZED);
     }
   } catch {
-    next(new HttpError('Unauthorized user !!, Please Try to login first !!', HttpStatus.UNAUTHORIZED));
+    next(new HttpError(' Please Try to login first !!', HttpStatus.UNAUTHORIZED));
   }
 };
 
@@ -89,16 +68,26 @@ export const hasValidRole = (
 ) => (async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Checks if the user role is included in the array of valid roles and calls the next middleware function if it is
-    if (roles.includes(req.user.user.type)) {
+    if (!req.user || !req.user.user || !req.user.user.type) {
+      throw new HttpError('User is not authenticated!', HttpStatus.UNAUTHORIZED);
+    }
+
+    const userType = req.user.user.type; // Extract user type for logging
+    console.log('User Role:', userType); 
+    console.log('Valid roles:', roles);
+
+    
+    console.log('Current user role before validation:', userType);
+
+    if (roles.includes(userType)) {
       next();
     } else {
       throw new HttpError('You don not have permissions to access this area!', HttpStatus.FORBIDDEN);
     }
-  } catch {
+  } catch (error) {
+    console.error('Authorization Error:', error);
     next(new HttpError('You don not have permissions to access this area!', HttpStatus.FORBIDDEN));
   }
-  
 });
-
 
 export default isAuth;

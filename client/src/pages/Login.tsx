@@ -6,6 +6,9 @@ import {
   UserOutlined, LockOutlined, CheckCircleOutlined, ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+
+import UserAPIs from '../api/user.api'; // Adjust the import path as needed
+
 import Breadcrumb from '../components/Breadcrumb';
 import '../style/style.scss';
 
@@ -40,22 +43,34 @@ function Login() {
       navigate('/Users'); // Navigate to the user page after successful login
     }
   };
-
-  const onFinish = (values: LoginFormValues) => {
+  const userApi = new UserAPIs();
+  const onFinish = async (values: LoginFormValues) => {
     console.log('Received values of form: ', values);
 
-    // Simulate authentication API call
-    if (values.email === 'admin' && values.password === 'admin') {
-      showModal(
-        'Login Successful',
-        'You have successfully logged in.',
-        <CheckCircleOutlined style={{ color: 'green' }} />,
-      );
+    try {
+      // Call the login API
+      const response = await userApi.loginUserApi({
+        email: values.email,
+        password: values.password,
+      });
+
+      // Assuming the backend returns a success response with a token or user data
+      if (response.data) {
+        // Save token or user data if needed (e.g., localStorage)
+        localStorage.setItem('token', response.data.token); // Adjust according to your response structure
+
+        showModal(
+          'Login Successful',
+          'You have successfully logged in.',
+          <CheckCircleOutlined style={{ color: 'green' }} />,
+        );
+      }
     }
-    else {
+    catch (error: any) {
+      // Handle errors
       showModal(
         'Login Failed',
-        'Invalid username or password.',
+        error.response?.data?.message || 'An error occurred while logging in.',
         <ExclamationCircleOutlined style={{ color: 'red' }} />,
       );
     }
@@ -128,7 +143,7 @@ function Login() {
             {modalContent.title}
           </span>
         )}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={() => setIsModalVisible(false)}
       >
