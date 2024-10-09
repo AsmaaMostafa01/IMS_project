@@ -249,6 +249,8 @@ class UserController {
     }
   };
 
+
+  
   login = async (req: Request, res: Response, next: NextFunction) => {
     const { body: { email, password } } = req;
     const { SUPER_ADMIN_USERNAME, SUPER_ADMIN_PASSWORD } = Env;
@@ -261,6 +263,7 @@ class UserController {
           token,
         });
       }
+
 
       const user = await this.userService.getByEmail(email);
       console.log('User from DB:', user); // Log the retrieved user
