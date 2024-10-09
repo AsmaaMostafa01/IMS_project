@@ -7,7 +7,12 @@ import axios from 'axios';
 const setAuthHeader = (token: string) => {
   if (token) {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+<<<<<<< HEAD
   } else {
+=======
+  }
+  else {
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
     delete axios.defaults.headers.common.Authorization;
   }
 };

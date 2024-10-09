@@ -24,5 +24,12 @@ module.exports = {
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
+<<<<<<< HEAD
+=======
+    'linebreak-style': ['error', 'windows'],
+    'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+    'no-console': 'off',
+
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
   },
 };

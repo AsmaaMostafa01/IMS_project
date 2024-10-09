@@ -14,10 +14,16 @@ const {
 let url = '';
 
 if (SERVER_ENV === 'dev') {
+<<<<<<< HEAD
   url = `mongodb+srv://islamohessin:P2pNusVupis6ze7h@cluster0.9f9mi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
   //url = `mongodb://${MONGODB_HOST}/${MONGODB_DATABASE}`;
 } else {
   url = `mongodb+srv://islamohessin:P2pNusVupis6ze7h@cluster0.9f9mi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+=======
+  url = `mongodb://${MONGODB_HOST}/${MONGODB_DATABASE}`;
+} else {
+  url = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin`;
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 }
 
 const connectToMongoDB = () => {

@@ -6,6 +6,12 @@ import {
   UserOutlined, LockOutlined, CheckCircleOutlined, ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+
+import UserAPIs from '../api/user.api'; // Adjust the import path as needed
+
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 import Breadcrumb from '../components/Breadcrumb';
 import '../style/style.scss';
 
@@ -40,6 +46,7 @@ function Login() {
       navigate('/Users'); // Navigate to the user page after successful login
     }
   };
+<<<<<<< HEAD
 
   const onFinish = (values: LoginFormValues) => {
     console.log('Received values of form: ', values);
@@ -56,6 +63,36 @@ function Login() {
       showModal(
         'Login Failed',
         'Invalid username or password.',
+=======
+  const userApi = new UserAPIs();
+  const onFinish = async (values: LoginFormValues) => {
+    console.log('Received values of form: ', values);
+
+    try {
+      // Call the login API
+      const response = await userApi.loginUserApi({
+        email: values.email,
+        password: values.password,
+      });
+
+      // Assuming the backend returns a success response with a token or user data
+      if (response.data) {
+        // Save token or user data if needed (e.g., localStorage)
+        localStorage.setItem('token', response.data.token); // Adjust according to your response structure
+
+        showModal(
+          'Login Successful',
+          'You have successfully logged in.',
+          <CheckCircleOutlined style={{ color: 'green' }} />,
+        );
+      }
+    }
+    catch (error: any) {
+      // Handle errors
+      showModal(
+        'Login Failed',
+        error.response?.data?.message || 'An error occurred while logging in.',
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
         <ExclamationCircleOutlined style={{ color: 'red' }} />,
       );
     }
@@ -128,7 +165,11 @@ function Login() {
             {modalContent.title}
           </span>
         )}
+<<<<<<< HEAD
         visible={isModalVisible}
+=======
+        open={isModalVisible}
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
         onOk={handleOk}
         onCancel={() => setIsModalVisible(false)}
       >

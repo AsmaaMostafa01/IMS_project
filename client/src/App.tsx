@@ -7,9 +7,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './pages/Login';
 import Tasks from './pages/tasks';
 import Users from './pages/Users';
+<<<<<<< HEAD
 import Programs from './pages/program';
 import UserManagement from './pages/UserManagement';
 import ProgramDetails from './pages/ProgramDetails';
+=======
+import UserManagement from './pages/UserManagement';
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 
 const { Sider, Content } = Layout;
 
@@ -22,6 +26,7 @@ function AppLayout() {
       </Sider>
       <Layout>
         <Header />
+<<<<<<< HEAD
         <Content
           style={{
             margin: '24px 16px 0',
@@ -29,16 +34,24 @@ function AppLayout() {
             padding: '24px',
           }}
         >
+=======
+        <Content style={{ margin: '24px 16px 0', overflow: 'initial', padding: '24px' }}>
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
           <Routes>
             {/* Define all the routes that need the layout */}
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/users" element={<Users />} />
+<<<<<<< HEAD
             <Route path="/programs" element={<Programs />} />
             <Route
               path="/user-management"
               element={<UserManagement currentUserRole="Team Leader" />}
             />
             <Route path="/programs/:programId" element={<ProgramDetails />} />
+=======
+            <Route path="/user-management" element={<UserManagement />} />
+
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
           </Routes>
         </Content>
       </Layout>

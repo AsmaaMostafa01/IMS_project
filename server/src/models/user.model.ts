@@ -2,6 +2,10 @@
 import {
   prop, getModelForClass, Ref, pre,
 } from '@typegoose/typegoose';
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 import { UserTypeEnum, StatusEnum, HttpStatus } from '../types';
 import { HttpError } from '../middleware/error.middleware';
 
@@ -68,12 +72,23 @@ export class User {
   //@prop({ ref: () => Program, required: false })
  // programId?: Ref<Program>;
 
+<<<<<<< HEAD
   @prop({ ref: () => User, required: false })
   teamLeaderId?: Ref<User>;
 
   @prop({ ref: () => User, required: false })
   adminId?: Ref<User>;
 
+=======
+  @prop({ ref: () => User,type: String, required: false })
+  teamLeaderId?: Ref<User>;
+
+  @prop({ ref: () => User, type: String, required: false })
+  adminId?: Ref<User>;
+  @prop({ required: false })
+  createdByAdminName?:string;
+  
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
   @prop({ required: false })
   department?: string;
 

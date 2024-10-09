@@ -1,7 +1,13 @@
 import axios from 'axios';
 import {
   IUserCreate, IUserUpdate,
+<<<<<<< HEAD
   IUserSignIn,  IUserForgetPassword, IUserResetPassword,
+=======
+  IUserSignIn,
+  // IUser,
+  // IUserForgetPassword,IUserResetPassword,
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 } from '../interfaces/domain/index';
 import { BaseAPIs } from '.';
 
@@ -24,6 +30,7 @@ class UserAPIs {
     },
   });
 
+<<<<<<< HEAD
   // updateUserByIdApi = (id: string, user: IUserUpdate) => axios.put(`${this.baseUrl}/users/${id}`, user);
 
   // forgetUserPasswordApi = (user: IUserForgetPassword) => axios.put(`${this.baseUrl}/users/password-forget`, user);
@@ -33,6 +40,30 @@ class UserAPIs {
   loginUserApi = (user: IUserSignIn) => axios.post(`${this.baseUrl}/users/login`, user);
 
   // getUserByIdApi = (id: string) => axios.get(`${this.baseUrl}/users/${id}`);
+=======
+  // eslint-disable-next-line max-len
+  updateUserByIdApi = (id: string, user: IUserUpdate) => axios.put(`${this.baseUrl}/users/${id}`, user);
+
+  deleteUserById = async (id: string): Promise<void> => {
+    try {
+      await axios.delete(`${this.baseUrl}/users/${id}`);
+    }
+    catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  };
+  // eslint-disable-next-line max-len
+  // forgetUserPasswordApi = (user: IUserForgetPassword) => axios.put(`${this.baseUrl}/users/password-forget`, user);
+
+  // eslint-disable-next-line max-len
+  // resetUserPasswordApi = (user: IUserResetPassword) => axios.put(`${this.baseUrl}/users/password-reset`, user);
+  getAllUsersApi = () => axios.get(`${this.baseUrl}/users`);
+
+  loginUserApi = (user: IUserSignIn) => axios.post(`${this.baseUrl}/users/login`, user);
+
+  getUserByIdApi = (id: string) => axios.get(`${this.baseUrl}/users/${id}`);
+>>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
 }
 
 export default UserAPIs;

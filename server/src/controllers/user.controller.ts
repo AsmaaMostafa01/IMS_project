@@ -8,6 +8,7 @@ import Env from '../../config';
 import {
  UserData,
 } from '../persistance';
+import mongoose, { Types } from 'mongoose'; 
 import { HttpStatus, UserTypeEnum } from '../types';
 import { generateEmail, sendEmail } from '../util/email.util';
 import { HttpError } from '../middleware/error.middleware';
@@ -53,7 +54,7 @@ class UserController {
     return orgDomain === emailDomain;
   };
 
-  generateUser = (body: any, fileName: string | undefined) => {
+  generateUser = (body: any, fileName: string | undefined,adminName?: string) => {
     console.log(`filename: ${fileName}`);
     if(fileName !== undefined){
       return {
@@ -68,6 +69,9 @@ class UserController {
         passwordStatus: 'default',
         password: hashPassword(body.password),
         payload: uuidv4(),
+        adminId: undefined,  
+        teamLeaderId: undefined,
+        createdByAdminName: adminName, 
       }
     }else {
       return {
@@ -81,6 +85,9 @@ class UserController {
         passwordStatus: 'default',
         password: hashPassword(body.password),
         payload: uuidv4(),
+        adminId: undefined,  
+        teamLeaderId: undefined,
+        createdByAdminName: adminName, 
       }
     }
   };
@@ -89,7 +96,7 @@ class UserController {
     console.log("Creating the first admin user...");
     
     try {
-      const { firstName, email, password,payload ,mobile} = req.body; // Get data from request body
+      const { firstName, email, password,payload ,mobile} = req.body; 
   
       // Validate that all required fields are provided
       if (!firstName || !email || !password) {
@@ -126,18 +133,28 @@ class UserController {
 
       // Create User
   create = async (req: Request, res: Response, next: NextFunction) => {
-    const { user } = req.user; // Current user (Admin or Team Leader)
-    try {
-      const newUser = this.generateUser(req.body, req.file?.filename);
+    console.log('Adding trainee with data:', req.body);
+    const { user } = req.user; 
 
+     //if (!user || !user.user || !user.user.firstName) {
+      // return next(new HttpError('User not authenticated!', HttpStatus.UNAUTHORIZED));
+    // }
+    console.log('Current user:', user);// Current user (Admin or Team Leader)
+    try {
+      const adminName = `${user.firstName} ${user.lastName || ''}`.trim() || 'Unknown Admin';
+
+      const newUser = this.generateUser(req.body, req.file?.filename,adminName);
+      console.log('User creating trainee:', user);
       if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN) {
         // Admin creating a user
+        newUser.adminId = user.id; // Ensure the adminId is cast to ObjectId
         await this.userService.create({ ...newUser, adminId: user.id });
         return res.status(HttpStatus.CREATED).send({ message: 'User created successfully' });
       }
 
       if (user.type === UserTypeEnum.TEAMLEADER) {
         // Team Leader creating a trainee
+        newUser.teamLeaderId = user.id;
         await this.userService.create({ ...newUser, teamLeaderId: user.id });
         return res.status(HttpStatus.CREATED).send({ message: 'Trainee created successfully' });
       }
@@ -159,14 +176,33 @@ class UserController {
         return res.status(HttpStatus.NOT_FOUND).send({ message: 'User not found' });
       }
 
-      if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN) {
-        await this.userService.updateById(id, req.body);
+      // Log the teamLeaderId of the existing user and the logged-in user's ID
+      console.log('Existing User TeamLeaderId:', existingUser.teamLeaderId);
+      console.log('Logged-in TeamLeader ID:', user.id);
+      const updateData = { ...req.body };
+      delete updateData.password;
+      if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN || user.type === UserTypeEnum.TEAMLEADER) {
+        await this.userService.updateById(id, updateData);
         return res.status(HttpStatus.OK).send({ message: 'User updated successfully' });
       }
 
-      if (user.type === UserTypeEnum.TEAMLEADER && existingUser.teamLeaderId === user.id) {
-        await this.userService.updateById(id, req.body);
-        return res.status(HttpStatus.OK).send({ message: 'Trainee updated successfully' });
+      // if (user.type === UserTypeEnum.TEAMLEADER && existingUser.teamLeaderId === user.id) {
+      //   await this.userService.updateById(id, req.body);
+      //   return res.status(HttpStatus.OK).send({ message: 'Trainee updated successfully' });
+      // }
+      // Team Leader can only update their own trainees
+      if (user.type === UserTypeEnum.TEAMLEADER) {
+        console.log('Existing User TeamLeaderId:', existingUser.teamLeaderId);
+        console.log('Logged-in TeamLeader ID:', user.id);
+
+        // Ensure both are ObjectId instances before comparing
+        if (existingUser.teamLeaderId && existingUser.teamLeaderId.equals(new Types.ObjectId(user.id))) {
+          await this.userService.updateById(id, updateData);
+          return res.status(HttpStatus.OK).send({ message: 'Trainee updated successfully' });
+        } else {
+          console.log('TeamLeader IDs do not match');
+          return res.status(HttpStatus.FORBIDDEN).send({ message: 'You do not have permission to update this user' });
+        }
       }
 
       return res.status(HttpStatus.FORBIDDEN).send({ message: 'You do not have permission to update this user' });
@@ -185,16 +221,19 @@ class UserController {
       if (!existingUser) {
         return res.status(HttpStatus.NOT_FOUND).send({ message: 'User not found' });
       }
+      // Log values for debugging
+      console.log('Current user ID:', user.id);
+      console.log('Existing User TeamLeader ID:', existingUser.teamLeaderId?.toString());
 
-      if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN) {
+      if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN || user.type === UserTypeEnum.TEAMLEADER) {
         await this.userService.deleteById(id);
         return res.status(HttpStatus.OK).send({ message: 'User deleted successfully' });
       }
-
-      if (user.type === UserTypeEnum.TEAMLEADER && existingUser.teamLeaderId === user.id) {
-        await this.userService.deleteById(id);
-        return res.status(HttpStatus.OK).send({ message: 'Trainee deleted successfully' });
-      }
+      
+      // if (user.type === UserTypeEnum.TEAMLEADER && existingUser.teamLeaderId === user.id) {
+      //   await this.userService.deleteById(id);
+      //   return res.status(HttpStatus.OK).send({ message: 'Trainee deleted successfully' });
+      // }
 
       return res.status(HttpStatus.FORBIDDEN).send({ message: 'You do not have permission to delete this user' });
     } catch (e: any) {
@@ -249,8 +288,6 @@ class UserController {
     }
   };
 
-
-  
   login = async (req: Request, res: Response, next: NextFunction) => {
     const { body: { email, password } } = req;
     const { SUPER_ADMIN_USERNAME, SUPER_ADMIN_PASSWORD } = Env;
@@ -264,18 +301,17 @@ class UserController {
         });
       }
 
-
       const user = await this.userService.getByEmail(email);
-      console.log('User from DB:', user); // Log the retrieved user
+      console.log('User from DB:', user); 
       if (user && isPasswordValid(user.password as string, password)) {
-        const token = signUser({ id: user.payload });
+        const token = signUser({  id: user.id, type: user.type }  );
         return res.status(HttpStatus.OK).send({
           message: 'Signin successfully',
           token,
         });
       }
-      console.log('Provided Password:', password); // Log the provided password
-    console.log('Stored Hashed Password:', user?.password); // Log the stored hashed password
+      console.log('Provided Password:', password); 
+    console.log('Stored Hashed Password:', user?.password); 
       throw new HttpError('Email and password not match, Please try again !!', HttpStatus.BAD_REQUEST);
     } catch (e: any) {
       next(new HttpError(e.message || 'Fail to login this Users, please try again!', e.statusCode || 500));
