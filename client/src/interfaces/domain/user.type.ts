@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { IMetaData } from "./base.type";
+import { IMetaData } from './base.type';
 
 // These classes are User DOTs
 
@@ -8,6 +8,8 @@ import { IMetaData } from "./base.type";
 enum UserTypeEnum {
     SADMIN = 'sAdmin',
     ADMIN = 'admin',
+    TEAMLEADER='TeamLeader',
+    TRAINEE='Trainee'
 }
 
 type IUserBase = {
@@ -31,8 +33,8 @@ interface IUserRef extends IUserBase, IDefaultUserAttributes, IMetaData{
 interface IUserCreate extends IUserBase{
     orgId?: string,
     clientId?: string,
-    password: string,
-    picture: string,
+    password?: string,
+    picture?: string,
 }
 
 interface IUserSignIn {
@@ -41,7 +43,15 @@ interface IUserSignIn {
 }
 
 interface IUserUpdate extends IUserBase, IDefaultUserAttributes{
-    updatedAt: Date,
+    id: string;
+  // username: string;
+  email: string;
+  type: UserTypeEnum;
+  firstName: string;
+  lastName: string;
+  mobile: string;
+  password?: string; // Optional if you're not always updating the password
+  updatedAt: Date;
 }
 
 interface IUserPasswordUpdate{

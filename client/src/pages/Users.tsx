@@ -20,54 +20,98 @@ import {
 } from '@ant-design/icons';
 import '../style/Useredit.scss';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { jwtDecode } from 'jwt-decode';
+import setAuthHeader from '../api/setAuthHeader'; // Import the setAuthHeader utility
+import UserAPIs from '../api/user.api'; // Import the API
+import { IUserUpdate, UserTypeEnum } from '../interfaces/domain/index'; // Import IUserUpdate
 
 const { Option } = Select;
 const { TabPane } = Tabs;
 
+interface JwtPayload {
+  user: {
+      id: string;
+      type: string; // Add more properties if needed
+  };
+  iat: number; // Issued at
+}
 interface User {
   id: string;
-  username: string;
+  // username: string;
   email: string;
-  role: 'Admin' | 'Team Leader' | 'Trainee';
+  type: UserTypeEnum;
+  firstName: string; // Required property
+  lastName: string; // Required property
+  mobile: string; // Required property
+  updatedAt?: Date; // Optional property
+  password?: string; // Optional property for updating password
 }
 
 function UserEdit() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [formValues, setFormValues] = useState<User | null>(null);
+  const [modalFormValues, setModalFormValues] = useState<User | null>(null); // Renamed for clarity
 
   const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const fetchedUser: User = {
-        id: '1',
-        username: 'johndoe',
-        email: 'johndoe@example.com',
-        role: 'Team Leader',
-      };
-      setUser(fetchedUser);
-      setLoading(false);
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          setAuthHeader(token);
+          const decoded: JwtPayload = jwtDecode(token);
+          const userId = decoded.user.id; // Ensure 'id' is correct
+          console.log(`Fetching user with ID: ${userId}`);
+          const userApi = new UserAPIs();
+          const response = await userApi.getUserByIdApi(userId);
+          console.log('Fetched User Data:', response.data);
+          const userData = response.data.user.user;
+          setUser(userData);
+          setLoading(false);
+        }
+      }
+      catch (error) {
+        console.error('Error fetching user data:', error);
+        message.error('Failed to fetch user data. Please try again.');
+        setLoading(false);
+      }
     };
 
     fetchUserData();
   }, []);
 
   const showModal = (values: User) => {
-    setFormValues(values);
+    setModalFormValues(values); // Set the values for the modal
     setIsModalVisible(true);
   };
 
+  const mapToIUserUpdate = (formValues: User): IUserUpdate => ({
+    id: formValues.id,
+    // username: formValues.username,
+    email: formValues.email,
+    password: formValues.password, // Optional
+    firstName: formValues.firstName,
+    lastName: formValues.lastName,
+    mobile: formValues.mobile,
+    type: formValues.type,
+    updatedAt: new Date(), // Set current date
+    passwordStatus: 'active', // Assuming this is required, set an appropriate value
+  });
+
   const handleOk = async () => {
     try {
-      // Simulate an API call to update user data
-      console.log('Updated User Info: ', formValues);
-      message.success({
-        content: 'User information updated successfully!',
-        style: { fontSize: '18px', textAlign: 'center' }, // Adjust font size and alignment
-      });
-      setIsModalVisible(false);
+      const userApi = new UserAPIs();
+      if (user?.id && modalFormValues) {
+        const updatedUser: IUserUpdate = mapToIUserUpdate(modalFormValues);
+        await userApi.updateUserByIdApi(user.id, updatedUser);
+        message.success({
+          content: 'User information updated successfully!',
+          style: { fontSize: '18px', textAlign: 'center' },
+        });
+        setIsModalVisible(false);
+      }
     }
     catch (error) {
       message.error('Failed to update user information. Please try again.');
@@ -78,12 +122,12 @@ function UserEdit() {
     setIsModalVisible(false);
   };
 
-  const onFinish = async (values: User & { password?: string }) => {
+  const onFinish = (values: User & { password?: string }) => {
     showModal(values);
   };
 
   const handleTabChange = (key: string) => {
-    if (key === '2') { // Navigate to User Management when the User Management tab is selected
+    if (key === '2') {
       navigate('/user-management'); // Change to your User Management route
     }
   };
@@ -98,51 +142,53 @@ function UserEdit() {
             {user ? (
               <Form
                 name="user_edit_form"
-                initialValues={user}
+                initialValues={{
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  email: user.email,
+                  mobile: user.mobile,
+                  type: user.type,
+
+                }}
                 onFinish={onFinish}
                 layout="vertical"
                 className="user-edit-form"
               >
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Form.Item
-                      name="username"
-                      label="Username"
-                    >
-                      <Input prefix={<UserOutlined />} placeholder="Username" />
+                    <Form.Item name="firstName" label="First Name">
+                      <Input prefix={<UserOutlined />} placeholder="First Name" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item
-                      name="email"
-                      label="Email"
-                    >
+                    <Form.Item name="lastName" label="Last Name">
+                      <Input placeholder="Last Name" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="email" label="Email">
                       <Input prefix={<MailOutlined />} placeholder="Email" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="mobile" label="Mobile">
+                      <Input placeholder="Mobile" />
                     </Form.Item>
                   </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Form.Item
-                      name="password"
-                      label="Password"
-                    >
+                    <Form.Item name="password" label="Password">
                       <Input.Password prefix={<LockOutlined />} placeholder="Password" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item
-                      name="confirmPassword"
-                      label="Confirm Password"
-                    >
+                    <Form.Item name="confirmPassword" label="Confirm Password">
                       <Input.Password prefix={<LockOutlined />} placeholder="Confirm Password" />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item
-                  name="role"
-                  label="Role"
-                >
+                <Form.Item name="type" label="type">
                   <Select placeholder="Select Role" suffixIcon={<TeamOutlined />}>
                     <Option value="Admin">Admin</Option>
                     <Option value="Team Leader">Team Leader</Option>
@@ -160,13 +206,9 @@ function UserEdit() {
             )}
           </TabPane>
           <TabPane tab="User Management" key="2">
-            {' '}
-            {/* User Management Tab */}
             <Empty description="Manage your users here" />
           </TabPane>
           <TabPane tab="Archived Users" key="3">
-            {' '}
-            {/* Archived Users Tab */}
             <Empty description="Manage archived users here" />
           </TabPane>
         </Tabs>
@@ -174,7 +216,7 @@ function UserEdit() {
 
       <Modal
         title="Confirm Changes"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Confirm"
@@ -183,19 +225,24 @@ function UserEdit() {
       >
         <p>Are you sure you want to save the changes?</p>
         <p>
-          <strong>Username:</strong>
+          <strong>First Name:</strong>
           {' '}
-          {formValues?.username}
+          {modalFormValues?.firstName}
+        </p>
+        <p>
+          <strong>Last Name:</strong>
+          {' '}
+          {modalFormValues?.lastName}
         </p>
         <p>
           <strong>Email:</strong>
           {' '}
-          {formValues?.email}
+          {modalFormValues?.email}
         </p>
         <p>
           <strong>Role:</strong>
           {' '}
-          {formValues?.role}
+          {modalFormValues?.type}
         </p>
       </Modal>
     </div>

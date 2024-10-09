@@ -25,7 +25,7 @@ function AppLayout() {
             {/* Define all the routes that need the layout */}
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/user-management" element={<UserManagement currentUserRole="Team Leader" />} />
+            <Route path="/user-management" element={<UserManagement />} />
 
           </Routes>
         </Content>

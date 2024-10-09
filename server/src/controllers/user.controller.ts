@@ -179,9 +179,10 @@ class UserController {
       // Log the teamLeaderId of the existing user and the logged-in user's ID
       console.log('Existing User TeamLeaderId:', existingUser.teamLeaderId);
       console.log('Logged-in TeamLeader ID:', user.id);
-
+      const updateData = { ...req.body };
+      delete updateData.password;
       if (user.type === UserTypeEnum.ADMIN || user.type === UserTypeEnum.SADMIN || user.type === UserTypeEnum.TEAMLEADER) {
-        await this.userService.updateById(id, req.body);
+        await this.userService.updateById(id, updateData);
         return res.status(HttpStatus.OK).send({ message: 'User updated successfully' });
       }
 
@@ -196,7 +197,7 @@ class UserController {
 
         // Ensure both are ObjectId instances before comparing
         if (existingUser.teamLeaderId && existingUser.teamLeaderId.equals(new Types.ObjectId(user.id))) {
-          await this.userService.updateById(id, req.body);
+          await this.userService.updateById(id, updateData);
           return res.status(HttpStatus.OK).send({ message: 'Trainee updated successfully' });
         } else {
           console.log('TeamLeader IDs do not match');

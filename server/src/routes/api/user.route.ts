@@ -20,7 +20,7 @@ router.post('/create-first-admin', (req, res, next) => {
 //admin and teamleaders can add trainees
 router.route('/')
   .post(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN,UserTypeEnum.TEAMLEADER]), uploadImages('profiles').single('picture'), isUserValidForCreate, user.create)
-  .get(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN]), user.getAll);
+  .get(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN,UserTypeEnum.TEAMLEADER]), user.getAll);
   
 // router.route('/filter')
 //   .all(isAuth)

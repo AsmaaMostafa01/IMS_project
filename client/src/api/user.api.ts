@@ -1,7 +1,9 @@
 import axios from 'axios';
 import {
   IUserCreate, IUserUpdate,
-  IUserSignIn,  IUserForgetPassword, IUserResetPassword,
+  IUserSignIn,
+  // IUser,
+  // IUserForgetPassword,IUserResetPassword,
 } from '../interfaces/domain/index';
 import { BaseAPIs } from '.';
 
@@ -24,15 +26,28 @@ class UserAPIs {
     },
   });
 
-  // updateUserByIdApi = (id: string, user: IUserUpdate) => axios.put(`${this.baseUrl}/users/${id}`, user);
+  // eslint-disable-next-line max-len
+  updateUserByIdApi = (id: string, user: IUserUpdate) => axios.put(`${this.baseUrl}/users/${id}`, user);
 
+  deleteUserById = async (id: string): Promise<void> => {
+    try {
+      await axios.delete(`${this.baseUrl}/users/${id}`);
+    }
+    catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  };
+  // eslint-disable-next-line max-len
   // forgetUserPasswordApi = (user: IUserForgetPassword) => axios.put(`${this.baseUrl}/users/password-forget`, user);
 
+  // eslint-disable-next-line max-len
   // resetUserPasswordApi = (user: IUserResetPassword) => axios.put(`${this.baseUrl}/users/password-reset`, user);
+  getAllUsersApi = () => axios.get(`${this.baseUrl}/users`);
 
   loginUserApi = (user: IUserSignIn) => axios.post(`${this.baseUrl}/users/login`, user);
 
-  // getUserByIdApi = (id: string) => axios.get(`${this.baseUrl}/users/${id}`);
+  getUserByIdApi = (id: string) => axios.get(`${this.baseUrl}/users/${id}`);
 }
 
 export default UserAPIs;

@@ -7,7 +7,8 @@ import axios from 'axios';
 const setAuthHeader = (token: string) => {
   if (token) {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-  } else {
+  }
+  else {
     delete axios.defaults.headers.common.Authorization;
   }
 };

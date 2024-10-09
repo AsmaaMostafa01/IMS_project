@@ -8,7 +8,7 @@ import IError from './error.type';
 
 export type {
   IUserCreate, IUserUpdate, IUserPasswordUpdate, IUserForgetPassword,
-  IUserResetPassword, IUserSignIn, IUser, IUserDB, IUserRef, IError
+  IUserResetPassword, IUserSignIn, IUser, IUserDB, IUserRef, IError,
 };
 
 export {
