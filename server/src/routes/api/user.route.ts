@@ -19,13 +19,8 @@ router.post('/create-first-admin', (req, res, next) => {
  // No authentication required for this route
 //admin and teamleaders can add trainees
 router.route('/')
-<<<<<<< HEAD
-  .post(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), uploadImages('profiles').single('picture'), isUserValidForCreate, user.create)
-  .get(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN]), user.getAll);
-=======
   .post(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN,UserTypeEnum.TEAMLEADER]), uploadImages('profiles').single('picture'), isUserValidForCreate, user.create)
   .get(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.SADMIN,UserTypeEnum.TEAMLEADER]), user.getAll);
->>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
   
 // router.route('/filter')
 //   .all(isAuth)
@@ -43,11 +38,7 @@ router.route('/login')
 router.route('/:id')
   .all(isAuth)
   .put(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), user.update)
-<<<<<<< HEAD
-  .delete(isAuth, hasValidRole([UserTypeEnum.ADMIN]), user.delete)
-=======
   .delete(isAuth, hasValidRole([UserTypeEnum.ADMIN, UserTypeEnum.TEAMLEADER]), user.delete)
->>>>>>> 7837fcc238be675b0eae11776801ea2e4c180f5c
   .get(user.getById)
 
 
