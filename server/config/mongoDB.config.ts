@@ -15,7 +15,7 @@ let url = '';
 
 if (SERVER_ENV === 'dev') {
   url = `mongodb+srv://islamohessin:P2pNusVupis6ze7h@cluster0.9f9mi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-  // url = `mongodb://${MONGODB_HOST}/${MONGODB_DATABASE}`;
+  //url = `mongodb://${MONGODB_HOST}/${MONGODB_DATABASE}`;
 } else {
   url = `mongodb+srv://islamohessin:P2pNusVupis6ze7h@cluster0.9f9mi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 }
